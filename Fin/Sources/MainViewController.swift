@@ -12,32 +12,32 @@ class MainViewController: UIViewController {
 
     // MARK: Outlets
 
+    let appDelegateStorageManager = StorageManager()
+
     private lazy var balanceMounthLabel: UILabel = {
         let label = UILabel()
-        label.text = "Остаток на месяц"
+//        label.text = Strings.balanceMounthLabel
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 17)
         label.textColor = .black
-
 
         return label
     }()
 
     private lazy var balanceMounthTextLabel: UILabel = {
         let label = UILabel()
-        label.text = "10000"
+//        let text = appDelegateStorageManager.getMounthBalance()
+//        label.text = separatedNumber(text)
         label.textAlignment = .center
         label.font = UIFont.boldSystemFont(ofSize: 20)
         label.textColor = .black
-
-
 
         return label
     }()
 
     private lazy var balanceDayLabel: UILabel = {
         let label = UILabel()
-        label.text = "Остаток на день"
+//        label.text = Strings.balanceDayLabel
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 17)
 
@@ -48,7 +48,8 @@ class MainViewController: UIViewController {
 
     private lazy var balanceDayTextLabel: UILabel = {
         let label = UILabel()
-        label.text = "1000"
+//        let text = appDelegateStorageManager.getDayBalance()
+//        label.text = separatedNumber(text)
         label.textAlignment = .center
         label.font = UIFont.boldSystemFont(ofSize: 28)
 
@@ -59,7 +60,7 @@ class MainViewController: UIViewController {
 
     private lazy var expenseLabel: UILabel = {
         let label = UILabel()
-        label.text = "500"
+//        label.text = separatedNumber(Strings.expenseLabel)
         label.textAlignment = .center
         label.font = UIFont.boldSystemFont(ofSize: 34)
 
@@ -127,8 +128,6 @@ class MainViewController: UIViewController {
     }()
 
 
-
-
     // MARK: Lifecycle
 
     override func viewDidLoad() {
@@ -137,6 +136,7 @@ class MainViewController: UIViewController {
         setupHierarchy()
         setupLayout()
         numpad()
+        setupStrings()
 
         print("OK status")
     }
@@ -153,7 +153,7 @@ class MainViewController: UIViewController {
 
     }
 
-    private func setupLayout(){
+    private func setupLayout() {
         balanceMounthLabel.translatesAutoresizingMaskIntoConstraints = false
         balanceMounthTextLabel.translatesAutoresizingMaskIntoConstraints = false
         balanceDayLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -191,56 +191,48 @@ class MainViewController: UIViewController {
             make.width.greaterThanOrEqualTo(200)
             make.width.lessThanOrEqualTo(view.snp.width).offset(-30)
         }
+    }
 
+    private func setupStrings() {
+        balanceMounthLabel.text = Strings.balanceMounthLabel
+        balanceMounthTextLabel.text = separatedNumber(appDelegateStorageManager.getMounthBalance())
+        balanceDayLabel.text = Strings.balanceDayLabel
+        balanceDayTextLabel.text = separatedNumber(appDelegateStorageManager.getDayBalance())
+        expenseLabel.text = separatedNumber(Strings.expenseLabel)
 
     }
 
 
     // MARK: Actions
-    private func checkText(text: String) -> String {
-        if text == "0" {
-            return ""
-        }
-        var textOut = String()
-        var k = 0
-        for i in text {
-            if k == 3 {
-                textOut += " "
-                k = 0
+
+
+    // MARK: Functions
+
+    private func separatedNumber(_ number: String) -> String {
+        if number != "" {
+            var text = number
+            for t in text {
+                if t == " " {
+                    text.remove(at: text.firstIndex(of: " ")!)
+                }
             }
-            k += 1
-            textOut += String(i)
 
-
+            let num = Int(text)
+            guard let itIsANumber = num as? NSNumber else {return "Not a number" }
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            formatter.groupingSeparator = " "
+            return formatter.string(from: itIsANumber)!
         }
-        return textOut
+        return ""
     }
-
-    private func addSumbol(textToAdd: String) {
-        var text = expenseLabel.text ?? " "
-        text += textToAdd
-        expenseLabel.text = checkText(text: text)
-    }
-
-    private func delSumbol() {
-        var text = expenseLabel.text ?? " "
-        if text != "" {
-            text.remove(at: text.index(before: text.endIndex))
-        }
-
-        expenseLabel.text = checkText(text: text)
-    }
-
-    private func OkPresed() {
-        print("Ok presed")
-    }
-
-
 
 }
 
 
+// MARK: - Numpad
 extension MainViewController {
+
     private func numpad() {
         var num = [
             numPudButton_1, numPudButton_2, numPudButton_3,
@@ -269,7 +261,6 @@ extension MainViewController {
         numPudButton_0.addTarget(self, action: #selector(pressed_0), for: .touchUpInside)
         numPudButton_Ok.addTarget(self, action: #selector(pressed_Ok), for: .touchUpInside)
         numPudButton_Del.addTarget(self, action: #selector(pressed_Del), for: .touchUpInside)
-
 
         for i in num {
             i.translatesAutoresizingMaskIntoConstraints = false
@@ -330,6 +321,9 @@ extension MainViewController {
         }
     }
 
+    // MARK: - Numpad functions
+
+
     @objc private func pressed_1() {
         addSumbol(textToAdd: "1")
     }
@@ -358,7 +352,9 @@ extension MainViewController {
         addSumbol(textToAdd: "9")
     }
     @objc private func pressed_0() {
-        addSumbol(textToAdd: "0")
+        if expenseLabel.text != " " {
+            addSumbol(textToAdd: "0")
+        }
     }
     @objc private func pressed_Ok() {
         OkPresed()
@@ -367,4 +363,90 @@ extension MainViewController {
         delSumbol()
     }
 
+    private func addSumbol(textToAdd: String) {
+        var text = expenseLabel.text ?? " "
+        text += textToAdd
+        expenseLabel.text = separatedNumber(text)
+    }
+
+    private func delSumbol() {
+        var text = expenseLabel.text ?? " "
+        if text != "" {
+            text.remove(at: text.index(before: text.endIndex))
+        }
+        expenseLabel.text = separatedNumber(text)
+    }
+
+    private func OkPresed() {
+        guard var sum = expenseLabel.text else { return }
+        guard var day = balanceDayTextLabel.text else { return }
+        guard var mounth = balanceMounthTextLabel.text else { return }
+
+        for t in sum {
+            if t == " " {
+                sum.remove(at: sum.firstIndex(of: " ")!)
+            }
+        }
+        for t in day {
+            if t == " " {
+                day.remove(at: day.firstIndex(of: " ")!)
+            }
+        }
+        for t in mounth {
+            if t == " " {
+                mounth.remove(at: mounth.firstIndex(of: " ")!)
+            }
+        }
+
+        guard let sumI = Int(sum) else { return }
+        guard let dayI = Int(day) else { return }
+        guard let mounthI = Int(mounth) else { return }
+
+        day = String(dayI - sumI)
+        mounth = String(mounthI - sumI)
+        balanceDayTextLabel.text = separatedNumber(day)
+        balanceMounthTextLabel.text = separatedNumber(mounth)
+        expenseLabel.text = "0"
+
+        appDelegateStorageManager.setDayBalance(str: day)
+        appDelegateStorageManager.setMounthBalance(str: mounth)
+
+        print("Ok presed")
+    }
+
 }
+
+// MARK: - Constants
+
+extension MainViewController {
+    enum Colors {
+        static let ViewBackGround: UIColor = .clear
+
+    }
+
+    enum Metric {
+        static let balanceMounthLabelTopOffset: CGFloat = 100
+        static let balanceMounthLabelHeight: CGFloat = 22
+
+        static let balanceMounthTextLabelTopOffset: CGFloat = 5
+        static let balanceMounthTextLabelHeight: CGFloat = 25
+
+        static let balanceDayLabelTopOffset: CGFloat = 45
+        static let balanceDayLabelHeight: CGFloat = 22
+
+        static let balanceDayTextLabelOffset: CGFloat = 5
+        static let balanceDayTextLabelHeight: CGFloat = 34
+
+        static let expenseLabelTopOffset: CGFloat = 51
+        static let expenseLabelHeight: CGFloat = 50
+
+    }
+
+    enum Strings {
+        static let balanceMounthLabel: String = "Остаток на месяц"
+        static let balanceDayLabel: String = "Остаток на день"
+        static let expenseLabel: String = "50"
+
+    }
+}
+
