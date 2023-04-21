@@ -11,14 +11,31 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
-
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
+
+        let appDelegateStorageManager = StorageManager()
+
+        if !appDelegateStorageManager.hasFirstLaunch() {
+
+            appDelegateStorageManager.setMounthBalance(str: "10000")
+            appDelegateStorageManager.setDayBalance(str: "1000")
+            appDelegateStorageManager.setHasFirstLaunch(bool: true)
+        }
+
+
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = MainViewController()
+
+        let mainViewController = MainViewController()
+        let mainNavigationController = UINavigationController(rootViewController: mainViewController)
+        mainNavigationController.interactivePopGestureRecognizer?.isEnabled = false
+
+
+
+        window.rootViewController = mainNavigationController
         window.makeKeyAndVisible()
         self.window = window
     }
