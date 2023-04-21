@@ -133,10 +133,14 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        navigationItem.backButtonTitle = "rrrrr"
         setupHierarchy()
         setupLayout()
         numpad()
         setupStrings()
+
+        navigateToDestinationViewController()
+
 
         print("OK status")
     }
@@ -414,6 +418,14 @@ extension MainViewController {
         print("Ok presed")
     }
 
+    func navigateToDestinationViewController() {
+
+        let destinationViewController = SettingsViewController()
+
+        self.navigationController?.pushViewController(destinationViewController, animated: true)
+
+    }
+
 }
 
 // MARK: - Constants
@@ -445,7 +457,7 @@ extension MainViewController {
     enum Strings {
         static let balanceMounthLabel: String = "Остаток на месяц"
         static let balanceDayLabel: String = "Остаток на день"
-        static let expenseLabel: String = "50"
+        static let expenseLabel: String = "0"
 
     }
 }

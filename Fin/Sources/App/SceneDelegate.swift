@@ -28,7 +28,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = MainViewController()
+
+        let mainViewController = MainViewController()
+        let mainNavigationController = UINavigationController(rootViewController: mainViewController)
+        mainNavigationController.interactivePopGestureRecognizer?.isEnabled = false
+
+
+
+        window.rootViewController = mainNavigationController
         window.makeKeyAndVisible()
         self.window = window
     }
